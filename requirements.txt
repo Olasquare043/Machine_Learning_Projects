@@ -1,0 +1,15 @@
+matplotlib
+numpy
+pandas
+scikit-learn
+seaborn
+torchvision
+torch
+pydantic
+imbalanced-learn
+catboost
+fastapi
+uvicorn
+alembic
+alchemy
+python-multipart
