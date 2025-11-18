@@ -13,3 +13,5 @@ uvicorn
 alembic
 alchemy
 python-multipart
+lightgbm
+xgboost

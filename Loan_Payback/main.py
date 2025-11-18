@@ -1,4 +1,5 @@
 # main.py
+<<<<<<< HEAD
 from fastapi.responses import FileResponse
 import pandas as pd
 from fastapi import FastAPI, UploadFile, File, HTTPException
@@ -41,19 +42,58 @@ def root():
     return {"message":"Welcome to loan payback predicting App"}
 
 # prediction route
+=======
+import pandas as pd
+from fastapi import FastAPI, UploadFile, File, HTTPException
+from pydantic import BaseModel
+from prediction import run_pipeline, feature_engineering, load_artifacts
+import io
+
+app = FastAPI(title="Loan Payback Prediction API")
+
+# Load artifacts once at startup
+preprocessor, selector, model, selected_features, expected_input_columns = load_artifacts()
+
+
+# -------------------------------------------------------
+# 1) SINGLE RECORD PREDICTION (JSON)
+# -------------------------------------------------------
+class SingleRecord(BaseModel):
+    gender: str
+    marital_status: str
+    employment_status: str
+    loan_purpose: str
+    education_level: str
+    grade_subgrade: str
+    loan_amount: float
+    interest_rate: float
+    annual_income: float
+    credit_score: float
+    debt_to_income_ratio: float
+
+
+>>>>>>> 545695f403a8573ea25d8cae6f2063f3f58327e1
 @app.post("/predict")
 def predict_single(record: SingleRecord):
     try:
         # Convert record → DataFrame
+<<<<<<< HEAD
         df = pd.DataFrame([record.model_dump()])
+=======
+        df = pd.DataFrame([record.dict()])
+>>>>>>> 545695f403a8573ea25d8cae6f2063f3f58327e1
 
         # Run the ML pipeline
         prob, pred_class = run_pipeline(df)
 
         return {
             "probability": float(prob[0]),
+<<<<<<< HEAD
             "predicted_class": int(pred_class[0]),
             "Interpretation": "The customer will not likely payback the loan" if int(pred_class[0])== 0 else "The customer will likely payback"
+=======
+            "predicted_class": int(pred_class[0])
+>>>>>>> 545695f403a8573ea25d8cae6f2063f3f58327e1
         }
 
     except Exception as e:
@@ -61,6 +101,7 @@ def predict_single(record: SingleRecord):
 
 
 # -------------------------------------------------------
+<<<<<<< HEAD
 # CSV UPLOAD PREDICTION → KAGGLE SUBMISSION FORMAT
 # -------------------------------------------------------
 @app.post("/predict-csv")
@@ -77,6 +118,17 @@ async def predict_csv(file: UploadFile = File(...)):
         if df.empty:
             raise HTTPException (status_code=400, detail="CSV file is empty")
         
+=======
+# 2) CSV UPLOAD PREDICTION → KAGGLE SUBMISSION FORMAT
+# -------------------------------------------------------
+@app.post("/predict-csv")
+def predict_csv(file: UploadFile = File(...)):
+    try:
+        # READ CSV INTO DATAFRAME
+        contents = file.file.read()
+        df = pd.read_csv(io.BytesIO(contents))
+
+>>>>>>> 545695f403a8573ea25d8cae6f2063f3f58327e1
         if "id" not in df.columns:
             raise HTTPException(400, detail="CSV must contain an 'id' column.")
 
@@ -92,6 +144,7 @@ async def predict_csv(file: UploadFile = File(...)):
             "loan_paid_back": prob
         })
 
+<<<<<<< HEAD
         # SAVE TO TEMPORY FILE
         os.makedirs("temp_outputs",exist_ok=True)
         output_path="temp_outputs/batch_predictions.csv"
@@ -101,5 +154,9 @@ async def predict_csv(file: UploadFile = File(...)):
             path=output_path,
             filename="Loan_predictions.csv",
             media_type="text/csv")
+=======
+        return submission.to_dict(orient="records")
+
+>>>>>>> 545695f403a8573ea25d8cae6f2063f3f58327e1
     except Exception as e:
         raise HTTPException(400, detail=str(e))
