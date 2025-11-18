@@ -10,7 +10,7 @@ def load_artifacts():
     ARTIFACTS_DIR = "artifacts"
     PREPROCESSOR_PATH = os.path.join(ARTIFACTS_DIR, "preprocessor.pkl")
     SELECTOR_PATH = os.path.join(ARTIFACTS_DIR, "selector.pkl")
-    MODEL_PATH = os.path.join(ARTIFACTS_DIR, "model.pkl")
+    MODEL_PATH = os.path.join(ARTIFACTS_DIR, "best_boosting_model_cat_smot.pkl")
     FEATURE_NAMES_PATH = os.path.join(ARTIFACTS_DIR, "feature_names.pkl")
 
     # ----------------------------------------------------
@@ -79,7 +79,7 @@ def run_pipeline(df):
 
     # Predict proba & class
     prob = model.predict_proba(X_selected)[:, 1]
-    pred_class = (prob >= 0.5).astype(int)
+    pred_class = (prob >= 0.7).astype(int) # Using 0.70 threshold
 
     return prob, pred_class
 
@@ -117,12 +117,4 @@ def predict_csv(input_path, output_path):
 
     result.to_csv(output_path, index=False)
     print(f"Batch prediction saved → {output_path}")
-
-
-# ----------------------------------------------------
-# Optional: Simple CLI usage
-# ----------------------------------------------------
-if __name__ == "__main__":
-    print("Example usage:")
-    print("    python prediction.py  # does nothing")
-    print("Use functions predict_kaggle() or predict_csv() in your scripts.")
+    
