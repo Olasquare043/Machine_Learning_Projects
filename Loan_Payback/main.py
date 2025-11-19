@@ -56,7 +56,7 @@ def predict_single(record: SingleRecord):
             "Interpretation": "The customer will not likely payback the loan" if int(pred_class[0])== 0 else "The customer will likely payback"
         }
 
-    except Exception as e:
+    except Exception as e:m
         raise HTTPException(status_code=400, detail=str(e))
 
 
