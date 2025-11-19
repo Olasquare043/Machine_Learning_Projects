@@ -3,6 +3,10 @@ import os
 import joblib
 import pandas as pd
 import numpy as np
+
+# metrics
+from sklearn.metrics import precision_score, recall_score, f1_score, roc_auc_score
+
 # ----------------------------------------------------
 # PATHS
 # ----------------------------------------------------
@@ -10,7 +14,7 @@ def load_artifacts():
     ARTIFACTS_DIR = "artifacts"
     PREPROCESSOR_PATH = os.path.join(ARTIFACTS_DIR, "preprocessor.pkl")
     SELECTOR_PATH = os.path.join(ARTIFACTS_DIR, "selector.pkl")
-    MODEL_PATH = os.path.join(ARTIFACTS_DIR, "best_boosting_model_cat_smot.pkl")
+    MODEL_PATH = os.path.join(ARTIFACTS_DIR, "best_boosting_model_smot.pkl")
     FEATURE_NAMES_PATH = os.path.join(ARTIFACTS_DIR, "feature_names.pkl")
 
     # ----------------------------------------------------
@@ -118,3 +122,27 @@ def predict_csv(input_path, output_path):
     result.to_csv(output_path, index=False)
     print(f"Batch prediction saved → {output_path}")
     
+# ----------------------------------------------------
+# Evaluation Metrics 
+# ----------------------------------------------------
+def model_evaluation(df,true_labels):
+    prob, pred_class=run_pipeline(df)
+    
+    # convert label to numpy
+    y_true= np.array(true_labels)
+
+    # checking the ROC-AUC Probability of class 1 (repay)
+    roc_auc= roc_auc_score(y_true,prob)
+
+    # checking recall for Default (class 0)
+    recall_default= recall_score(y_true,pred_class,pos_label=0)
+
+    # checking precision for Repay (class 1)
+    precision_repay= precision_score(y_true,pred_class,pos_label=1)
+
+    metrics= {
+    "roc_auc": round(roc_auc,2),
+    "recall_default": round(recall_default,2),
+    "precision_repay": round(precision_repay,2)
+    }
+    return metrics

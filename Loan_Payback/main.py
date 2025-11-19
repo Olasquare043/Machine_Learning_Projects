@@ -3,7 +3,7 @@ from fastapi.responses import FileResponse
 import pandas as pd
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from pydantic import BaseModel, Field
-from prediction import run_pipeline, feature_engineering, load_artifacts
+from prediction import run_pipeline, feature_engineering, load_artifacts, model_evaluation
 import io
 import os
 
@@ -103,3 +103,27 @@ async def predict_csv(file: UploadFile = File(...)):
             media_type="text/csv")
     except Exception as e:
         raise HTTPException(400, detail=str(e))
+    
+@app.post("/evaluate")
+async def evaluate(file: UploadFile=File(...)):
+    """
+    arg: Upload csv data for evaluation
+    return: evalution metric (ROC Auc, precision, recall)
+    """
+    try:
+        content= await file.read()
+        df=pd.read_csv(io.StringIO(content.decode('utf-8')))
+        if df.empty:
+            raise HTTPException(status_code=400, detail="CSV file is empty")
+        if "id" in df.columns:
+            df.drop(columns=["id"])
+        if "loan_paid_back" not in df.columns:
+             raise HTTPException(400, detail="CSV must contain an 'loan_paid_back' as true label for evaluation")
+        X=df.drop(columns=["loan_paid_back"])
+        y= df["loan_paid_back"]
+
+        # check the metric
+        metrics= model_evaluation(X,y)
+        return {'message':"Evaluate succesful", "Metrics":metrics}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
