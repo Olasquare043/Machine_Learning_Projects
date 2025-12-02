@@ -15,3 +15,4 @@ alchemy
 python-multipart
 lightgbm
 xgboost
+streamlit
