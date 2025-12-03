@@ -1,5 +1,5 @@
 import pickle
-import streamlit as st # type: ignore
+import streamlit as st 
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder
@@ -75,7 +75,9 @@ if page == "Prediction":
             'Mental Support': [mental_support],
             'Self Harm Story': [self_harm]
         })
-        
+        # diplay your input data
+        st.subheader("Your Input")
+        st.dataframe(input_data, use_container_width=True)
         # Make prediction
         prediction = pipeline.predict(input_data)[0]
         probabilities = pipeline.predict_proba(input_data)[0]
